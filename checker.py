@@ -108,6 +108,7 @@ def main():
         
     classList = load_classes(sheet)
     
+    print(json.dumps(classList, indent=4))
 
 if __name__ == "__main__":
     main()
