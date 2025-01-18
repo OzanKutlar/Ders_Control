@@ -11,6 +11,8 @@ GREEN = "\033[92m"
 WHITE = "\033[97m"
 RESET = "\033[0m"
 
+# Sheet stuff
+
 def load_classes(sheet):
     data = []
     for row in sheet.iter_rows(min_row=2, values_only=True):
@@ -101,12 +103,50 @@ def get_sheet(file_name):
         return
     return sheet
 
+
+# Schedule stuff
+
+def create_week():
+    days = ['MON', 'TUE', 'WED', 'THU', 'FRI']
+    week = {day: {} for day in days}
+    return week
+
+
+def add_to_week(week, class_info):
+    schedule = class_info.get("Schedule", "")
+    locations = class_info.get("Location", "").split(" - ")
+
+    for i, slot in enumerate(schedule.split(" - ")):
+        day, time_range = slot.split(" : ")
+        if day not in week:
+            continue
+
+        location = locations[i] if i < len(locations) else "Unknown"
+        week[day][time_range] = {
+            "Course": class_info.get("Full Course Name", "Unknown Course"),
+            "Instructor": class_info.get("Instructor", "Unknown Instructor"),
+            "Location": location
+        }
+    return week
+
+
+def read_file_create_week(class_list):
+    week = create_week()
+    for class_info in class_list:
+        week = add_to_week(week, class_info)
+    return week
+
+
+
+
 def main():
     file_name = find_excel_file()
     
     sheet = get_sheet(file_name)
         
     classList = load_classes(sheet)
+    
+    populated_week = read_file_create_week(classList)
     
     print(json.dumps(classList, indent=4))
 
