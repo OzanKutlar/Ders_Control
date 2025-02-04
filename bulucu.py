@@ -2,6 +2,7 @@ import json
 import re
 import sys
 import pandas as pd
+import os
 
 eklenenDersFile = 'eklenenders.json'  # JSON file containing scheduled classes
 
@@ -59,7 +60,13 @@ def save_updated_schedule(eklenenDers):
 def main():
     target = 'course_data.json' if len(sys.argv) < 2 else sys.argv[1]
     print(f'Reading data from {target}')
+    
+    # Check if 'eklenenders.json' exists, if not, create an empty JSON file
+    if not os.path.exists(eklenenDersFile):
+        with open(eklenenDersFile, 'w', encoding='utf-8') as file:
+            json.dump([], file)
 
+    
     # Load scheduled classes
     with open(eklenenDersFile, 'r', encoding='utf-8') as file:
         eklenenDers = json.load(file)
@@ -111,7 +118,7 @@ def main():
 
     print("\n📚 Available Classes:\n")
     for idx, class_data in enumerate(available_classes, start=1):
-        print(f"{idx}. {class_data['Section']} - {class_data['Course Name']} ({class_data['Schedule']})")
+        print(f"{idx}. {class_data['Section']} - {class_data['Course Name']} ({class_data['Schedule']}) ({class_data['Instructor']})")
 
     while True:
         try:
@@ -126,7 +133,7 @@ def main():
                 display_class_details(selected_class)
 
                 confirm = input("\nDo you want to add this class to the schedule? (y/n): ").strip().lower()
-                if confirm == 'y':
+                if confirm in ('y', '', 'Y', 'yes'):
                     eklenenDers.append(selected_class)
                     save_updated_schedule(eklenenDers)
 
