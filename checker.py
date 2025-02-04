@@ -115,9 +115,14 @@ def create_week():
 def add_to_week(week, class_info):
     schedule = class_info.get("Schedule", "")
     locations = class_info.get("Location", "").split(" - ")
-
+    
+    day = ""
     for i, slot in enumerate(schedule.split(" - ")):
-        day, time_range = slot.split(" : ")
+        breakpoint()
+        if len(slot.split(" : ")) == 2:
+            day = slot.split(" : ")[0]
+        
+        
         if day not in week:
             continue
 
@@ -130,8 +135,7 @@ def add_to_week(week, class_info):
     return week
 
 
-def read_file_create_week(class_list):
-    week = create_week()
+def read_file_create_week(class_list, week):
     for class_info in class_list:
         week = add_to_week(week, class_info)
     return week
@@ -144,11 +148,13 @@ def main():
     
     sheet = get_sheet(file_name)
         
-    classList = load_classes(sheet)
+    class_list = load_classes(sheet)
     
-    populated_week = read_file_create_week(classList)
+    week = create_week()
     
-    print(json.dumps(classList, indent=4))
+    week = read_file_create_week(class_list, week)
+    
+    print(json.dumps(week, indent=4))
 
 if __name__ == "__main__":
     main()

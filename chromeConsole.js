@@ -1,7 +1,7 @@
 (function() {
     function replaceEmptySpans(textNo) {
         // Select all span elements that have a specific set of attributes
-        const spans = document.querySelectorAll('span[id^="__text' + textNo + '-"][data-sap-ui^="__text' +  + textNo + '-"]');
+        const spans = document.querySelectorAll('span[id^="__text' + textNo + '-"]');
 
         spans.forEach(span => {
             // Check if the span's content is empty or contains only whitespace
@@ -12,14 +12,12 @@
     }
 
     // Run the function
-    replaceEmptySpans(9);
-	replaceEmptySpans(10);
-	replaceEmptySpans(11);
-	replaceEmptySpans(12);
-	replaceEmptySpans(13);
-	replaceEmptySpans(14);
-	replaceEmptySpans(15);
-	replaceEmptySpans(16);
+	// const startNo = 1;
+	for (let i = 0; i < 200; i++) {
+		// replaceEmptySpans(startNo + i);
+		replaceEmptySpans(i);
+	}
+
 	
 })();
 
