@@ -1,0 +1,72 @@
+[
+    {
+        "Course Code": "CMPE242",
+        "Course Name": "Veri Yap\u0131lar\u0131 ve Algoritmalar",
+        "Section": "CMPE242-S01",
+        "Full Course Name": "Veri Yap\u0131lar\u0131 ve Algoritmalar CMPE242-S0",
+        "Instructor": "FABIO STROPPA",
+        "Schedule": "MON : 15:00 - 17:50 - WED : 11:30 - 13:20",
+        "Location": "B-311 - PC Lab.1",
+        "Capacity": "68"
+    },
+    {
+        "Course Code": "CMPE304*1",
+        "Course Name": "\u00c7izge Kuram\u0131",
+        "Section": "CMPE304-S01",
+        "Full Course Name": "\u00c7izge Kuram\u0131 CMPE304-S01",
+        "Instructor": "NULL",
+        "Schedule": "TUE : 13:00 - 15:50",
+        "Location": "B-311",
+        "Capacity": "120"
+    },
+    {
+        "Course Code": "CMPE344*1",
+        "Course Name": "Veritaban\u0131 Sistemleri",
+        "Section": "CMPE344-S01",
+        "Full Course Name": "Veritaban\u0131 Sistemleri CMPE344-S01",
+        "Instructor": "SEYED SAJAD AHMADPOUR",
+        "Schedule": "FRI : 11:30 - 15:20",
+        "Location": "B-311",
+        "Capacity": "120"
+    },
+    {
+        "Course Code": "CMPE348*1",
+        "Course Name": "Bi\u00e7imsel Diller ve Otomatlar Kuram\u0131",
+        "Section": "CMPE348-S01",
+        "Full Course Name": "Bi\u00e7imsel Diller ve Otomatlar Kuram\u0131 CMPE",
+        "Instructor": "\u0130LKTAN AR",
+        "Schedule": "TUE : 09:00 - 11:50",
+        "Location": "B-211",
+        "Capacity": "120"
+    },
+    {
+        "Course Code": "CMPE399",
+        "Course Name": "Staj II",
+        "Section": "CMPE399-S01",
+        "Full Course Name": "Staj II CMPE399-S01",
+        "Instructor": "\u0130LKTAN AR",
+        "Schedule": "MON : 08:00 - 07:51",
+        "Location": "NULL",
+        "Capacity": "500"
+    },
+    {
+        "Course Code": "FENS300",
+        "Course Name": "Say\u0131sal Sistemler",
+        "Section": "FENS300-S01",
+        "Full Course Name": "Say\u0131sal Sistemler FENS300-S01",
+        "Instructor": "AY\u015eE H\u00dcMEYRA B\u0130LGE - FEZA KERESTEC\u0130O\u011eLU - G\u00d6KHAN K\u0130RK\u0130L",
+        "Schedule": "WED : 13:30 - 15:20 - MON : 12:30 - 14:20",
+        "Location": "Cibali Salon",
+        "Capacity": "250"
+    },
+    {
+        "Course Code": "CMPE356*1",
+        "Course Name": "Yaz\u0131l\u0131m M\u00fchendisli\u011fi Projesi",
+        "Section": "CMPE356-S01",
+        "Full Course Name": "Yaz\u0131l\u0131m M\u00fchendisli\u011fi Projesi CMPE356-S01",
+        "Instructor": "\u0130LKTAN AR",
+        "Schedule": "MON : 09:00 - 10:40 - MON : 11:00 - 12:40",
+        "Location": "B-211",
+        "Capacity": "120"
+    }
+]

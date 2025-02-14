@@ -1,0 +1,33 @@
+﻿Course Code,Course Name,Section,Full Course Name,Instructor,Schedule,Location,Capacity
+CMPE140*1,Bilgisayar Programlama I,CMPE140-S01,Bilgisayar Programlama I CMPE140-S01,ALBERT ÖZKOHEN,MON : 16:30 - 18:20 - FRI : 13:00 - 14:50,B-218 - PC Lab.2,42
+CMPE140*1,Bilgisayar Programlama I,CMPE140-S02,Bilgisayar Programlama I CMPE140-S02,RAHİM DEHKHARGHANİ,TUE : 09:00 - 10:50 - THU : 15:00 - 16:50,B-522 - PC Lab.2,40
+CMPE140*1,Bilgisayar Programlama I,CMPE140-S03,Bilgisayar Programlama I CMPE140-S03,RAHİM DEHKHARGHANİ,WED : 13:30 - 15:20 - TUE : 09:00 - 10:50,PC Lab.1 - B-522,40
+CMPE140*1,Bilgisayar Programlama I,CMPE140-S04,Bilgisayar Programlama I CMPE140-S04,RAHİM DEHKHARGHANİ,WED : 09:00 - 10:50 - TUE : 09:00 - 10:50,PC Lab.1 - B-522,40
+CMPE241*1,Bilgisayar Programlama II,CMPE241-S01,Bilgisayar Programlama II CMPE241-S01,ALBERT ÖZKOHEN,FRI : 09:30 - 11:20 - TUE : 12:00 - 13:50,PC Lab.2 - B-410,80
+CMPE241*1,Bilgisayar Programlama II,CMPE241-S02,Bilgisayar Programlama II CMPE241-S02,ALBERT ÖZKOHEN,THU : 15:30 - 17:20 - TUE : 12:00 - 13:50,PC Lab.1 - B-410,80
+CMPE242,Veri Yapıları ve Algoritmalar,CMPE242-S01,Veri Yapıları ve Algoritmalar CMPE242-S0,FABIO STROPPA,MON : 15:00 - 17:50 - WED : 11:30 - 13:20,B-311 - PC Lab.1,68
+CMPE242,Veri Yapıları ve Algoritmalar,CMPE242-S02,Veri Yapıları ve Algoritmalar CMPE242-S0,ALBERT ÖZKOHEN,TUE : 14:00 - 16:50 - THU : 11:30 - 13:20,B-312 - PC Lab.1,120
+CMPE244*1,Bilgisayar Organizasyonu ve Mimarisi,CMPE244-S01,Bilgisayar Organizasyonu ve Mimarisi CMP,TANER ARSAN,THU : 09:30 - 11:20 - MON : 09:30 - 11:20,PC Lab.1 - B-212,120
+CMPE299,Staj I,CMPE299-S01,Staj I CMPE299-S01,NULL,MON : 08:00 - 07:51,NULL,500
+CMPE304*1,Çizge Kuramı,CMPE304-S01,Çizge Kuramı CMPE304-S01,NULL,TUE : 13:00 - 15:50,B-311,120
+CMPE344*1,Veritabanı Sistemleri,CMPE344-S01,Veritabanı Sistemleri CMPE344-S01,SEYED SAJAD AHMADPOUR,FRI : 11:30 - 15:20,B-311,120
+CMPE348*1,Biçimsel Diller ve Otomatlar Kuramı,CMPE348-S01,Biçimsel Diller ve Otomatlar Kuramı CMPE,İLKTAN AR,TUE : 09:00 - 11:50,B-211,120
+CMPE356*1,Yazılım Mühendisliği Projesi,CMPE356-S01,Yazılım Mühendisliği Projesi CMPE356-S01,İLKTAN AR,MON : 09:00 - 10:40 - WED : 09:00 - 10:40,B-311 - B-212,120
+CMPE356*1,Yazılım Mühendisliği Projesi,CMPE356-S01,Yazılım Mühendisliği Projesi CMPE356-S01,İLKTAN AR,MON : 09:00 - 10:50 - WED : 09:00 - 10:50,B-311 - B-212,120
+CMPE399,Staj II,CMPE399-S01,Staj II CMPE399-S01,İLKTAN AR,MON : 08:00 - 07:51,NULL,500
+CMPE412,Bilgisayar Benzetimi,CMPE412-S01,Bilgisayar Benzetimi CMPE412-S01,SEYED SAJAD AHMADPOUR,MON : 09:00 - 11:50,D-104,60
+CMPE451*1,Ağ Mühendisliği I,CMPE451-S01,Ağ Mühendisliği I CMPE451-S01,TANER ARSAN,MON : 13:00 - 15:50 - FRI : 09:30 - 11:20,B-312 - PC Lab.1,120
+CMPE484,Mobil Uygulama Projesi,CMPE484-S01,Mobil Uygulama Projesi CMPE484-S01,TAYYİP TOPUZ,TUE : 10:00 - 12:50 - WED : 14:00 - 15:50,D-104 - B-401,50
+CMPE490,Bilgisayar Mühendisliğinde Özel Konular,CMPE490-S01,Bilgisayar Mühendisliğinde Özel Konular,FABIO STROPPA,THU : 09:30 - 12:20,B-110 My Lab,50
+FENS102,Mühendislik Matematiği II,FENS102-S01,Mühendislik Matematiği II FENS102-S01,NULL,FRI : 14:30 - 16:20 - WED : 14:00 - 15:50,Fener Salonu,150
+FENS102,Mühendislik Matematiği II,FENS102-S02,Mühendislik Matematiği II FENS102-S02,NULL,FRI : 14:30 - 16:20 - FRI : 12:30 - 14:20,Galata Salon - Fener Salonu,150
+FENS102,Mühendislik Matematiği II,FENS102-S03,Mühendislik Matematiği II FENS102-S03,AHMET NİHAT BERKER - FUNDA SAMANLIOĞLU,FRI : 12:30 - 14:20 - WED : 12:00 - 13:50,Cibali Salon - B-311,150
+FENS102,Mühendislik Matematiği II,FENS102-S04,Mühendislik Matematiği II FENS102-S04,NULL,FRI : 16:00 - 17:50 - FRI : 14:00 - 15:50,Cibali Salon - B-211,150
+FENS103,Doğa Bilimlerinde Karmaşıklık,FENS103-S01,Doğa Bilimlerinde Karmaşıklık FENS103-S0,DENİZ EROĞLU,TUE : 15:00 - 17:50,Cibali Salon,250
+FENS112,Fizik II,FENS112-S01,Fizik II FENS112-S01,AHMET NİHAT BERKER,WED : 16:00 - 17:50 - TUE : 09:00 - 11:50,Cibali Salon - B-202,120
+FENS112,Fizik II,FENS112-S02,Fizik II FENS112-S02,AHMET NİHAT BERKER,FRI : 09:30 - 12:20 - WED : 16:00 - 17:50,B-302.1 - Cibali Salon,30
+FENS112,Fizik II,FENS112-S03,Fizik II FENS112-S03,MEHMET ÖNDER PEKCAN,FRI : 09:30 - 12:20 - WED : 16:00 - 17:50,B-301 - Cibali Salon,30
+FENS112,Fizik II,FENS112-S04,Fizik II FENS112-S04,NULL,WED : 16:00 - 17:50 - TUE : 09:00 - 11:50,Cibali Salon - B-203,120
+FENS495,Bilimsel Araştırma I,FENS495-S01,Bilimsel Araştırma I FENS495-S01,FABIO STROPPA,FRI : 11:30 - 14:20,Madi Lab,5
+FENS496,Bilimsel Araştırma II,FENS496-S01,Bilimsel Araştırma II FENS496-S01,FABIO STROPPA,THU : 12:30 - 15:20,Online,5
+GE200,"Fantezi, Gerçeklik, Bilim, Toplum ve Huk",GE200-S01,"Fantezi, Gerçeklik, Bilim, Toplum ve Huk",AHMET NİHAT BERKER,MON : 15:00 - 17:50,Cibali Salon,220
