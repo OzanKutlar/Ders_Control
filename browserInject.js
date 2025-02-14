@@ -92,5 +92,5 @@ if(temp.length != 0){
 	downloadMatrixAsJson(temp);
 }
 else{
-	alert("No submitted file found.");
+	alert("No classes found.");
 }
