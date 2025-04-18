@@ -1,168 +1,208 @@
-import json
-import re
-import sys
-import pandas as pd
 import os
+import json
+import glob
+from datetime import datetime
+import shutil
 
-eklenenDersFile = 'eklenenders.json'  # JSON file containing scheduled classes
+def get_download_folder():
+    """Return the default downloads path for Windows."""
+    return os.path.join(os.path.expanduser('~'), 'Downloads')
 
+def find_json_files_in_downloads():
+    """Find all JSON files in the downloads folder."""
+    download_folder = get_download_folder()
+    json_files = glob.glob(os.path.join(download_folder, '*.json'))
+    return json_files
 
-def parse_schedule(course_code, course_name, schedule):
-    if isinstance(schedule, float):  # Handle missing schedule values
-        return None
+def find_json_files_in_current_directory():
+    """Find all JSON files in the current directory."""
+    json_files = glob.glob('*.json')
+    return json_files
 
-    pattern = r'(\w+)\s*:\s*(\d{2}:\d{2}\s*-\s*\d{2}:\d{2})'
-    matches = re.findall(pattern, schedule)
-    return matches
+def parse_timeslots(timeslots):
+    """Parse timeslots into a structured format."""
+    parsed_slots = []
+    for slot in timeslots:
+        day, time_range = slot.split(' : ')
+        start_time, end_time = time_range.split(' - ')
+        
+        # Convert times to datetime objects for easier comparison
+        start_dt = datetime.strptime(start_time, '%H:%M')
+        end_dt = datetime.strptime(end_time, '%H:%M')
+        
+        parsed_slots.append({
+            'day': day.strip(),
+            'start': start_dt,
+            'end': end_dt,
+            'original': slot
+        })
+    return parsed_slots
 
+def has_conflict(existing_timeslots, new_timeslots):
+    """Check if there's a scheduling conflict between existing and new timeslots."""
+    for new_slot in new_timeslots:
+        for exist_slot in existing_timeslots:
+            if new_slot['day'] == exist_slot['day']:
+                # Check for overlap
+                if (new_slot['start'] <= exist_slot['end'] and 
+                    new_slot['end'] >= exist_slot['start']):
+                    return True
+    return False
 
-def initialize_weekly_schedule():
-    days = ['MON', 'TUE', 'WED', 'THU', 'FRI']
-    return {day: [] for day in days}
+def create_new_selected_file(filename):
+    """Create a new selected courses file."""
+    data = {
+        "selected_courses": []
+    }
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=2)
+    return data
 
-
-def time_overlap(time1, time2):
-    start1, end1 = map(pd.to_datetime, time1.split(' - '))
-    start2, end2 = map(pd.to_datetime, time2.split(' - '))
-    return not (end1 <= start2 or end2 <= start1)
-
-
-def add_classes_to_schedule(weekly_schedule, location, course_code, course_name, day, time_period):
-    class_entry = f'{course_code} - {course_name} - {location}: {time_period}'
-    weekly_schedule[day].append(class_entry)
-
-
-def check_classes(weekly_schedule, course_code, course_name, day, time_period):
-    for existing_entry in weekly_schedule[day]:
-        existing_time_period = existing_entry.split(': ')[-1]
-        if time_overlap(existing_time_period, time_period):
-            return False
-    return True
-
-
-def display_class_details(class_data):
-    """Display class details in a readable format."""
-    print("\n--- Class Details ---")
-    print(f"Section: {class_data['Section']}")
-    print(f"Course Name: {class_data['Course Name']}")
-    print(f"Schedule: {class_data['Schedule']}")
-    print(f"Location: {class_data['Location']}")
-    print("---------------------")
-
-
-def save_updated_schedule(eklenenDers):
-    """Save the updated schedule back to eklenenders.json."""
-    with open(eklenenDersFile, 'w', encoding='utf-8') as file:
-        json.dump(eklenenDers, file, indent=4)
-    print("\n✅ Class added to schedule successfully!\n")
-
+def format_course_info(course):
+    """Format course information for display."""
+    return f"{course[0]} - {course[1]} - {course[2]} - {course[4]}"
 
 def main():
-    target = 'course_data.json' if len(sys.argv) < 2 else sys.argv[1]
-    print(f'Reading data from {target}')
+    print("Lesson Selection Program")
+    print("=======================")
     
-    # Check if 'eklenenders.json' exists, if not, create an empty JSON file
-    if not os.path.exists(eklenenDersFile):
-        with open(eklenenDersFile, 'w', encoding='utf-8') as file:
-            json.dump([], file)
-
+    # Find JSON files in downloads folder
+    download_json_files = find_json_files_in_downloads()
     
-    # Load scheduled classes
-    with open(eklenenDersFile, 'r', encoding='utf-8') as file:
-        eklenenDers = json.load(file)
-
-    weekly_schedule = initialize_weekly_schedule()
-
-    # Add existing scheduled classes to the weekly schedule
-    for row in eklenenDers:
-        course_code = row['Section']
-        course_name = row['Course Name']
-        schedule = row['Schedule']
-        location = row['Location']
-
-        schedule_details = parse_schedule(course_code, course_name, schedule)
-        if schedule_details is None:
-            continue
-
-        for day, time_period in schedule_details:
-            if day in weekly_schedule:
-                add_classes_to_schedule(weekly_schedule, location, course_code, course_name, day, time_period)
-
-    # Load available classes
-    with open(target, 'r', encoding='utf-8') as file:
-        df = json.load(file)
-
-    available_classes = []
-
-    for row in df:
-        course_code = row['Section']
-        course_name = row['Course Name']
-        schedule = row['Schedule']
-        location = row['Location']
-
-        schedule_details = parse_schedule(course_code, course_name, schedule)
-        if schedule_details is None:
-            continue
-
-        does_fit = all(
-            check_classes(weekly_schedule, course_code, course_name, day, time_period)
-            for day, time_period in schedule_details if day in weekly_schedule
-        )
-
-        if does_fit:
-            available_classes.append(row)
-
-    if not available_classes:
-        print("\n❌ No available classes that fit the current schedule.")
-        return
-
-    print("\n📚 Available Classes:\n")
-    for idx, class_data in enumerate(available_classes, start=1):
-        print(f"{idx}. {class_data['Section']} - {class_data['Course Name']} ({class_data['Schedule']}) ({class_data['Instructor']})")
-
-    while True:
-        try:
-            choice = input("\nEnter the number of the class to view details (or 'q' to quit): ").strip()
-            if choice.lower() == 'q':
-                print("\nExiting selection process.\n")
-                break
-
-            choice = int(choice)
-            if 1 <= choice <= len(available_classes):
-                selected_class = available_classes[choice - 1]
-                display_class_details(selected_class)
-
-                confirm = input("\nDo you want to add this class to the schedule? (y/n): ").strip().lower()
-                if confirm in ('y', '', 'Y', 'yes'):
-                    eklenenDers.append(selected_class)
-                    save_updated_schedule(eklenenDers)
-
-                    # Update the weekly schedule dynamically
-                    schedule_details = parse_schedule(selected_class['Section'], selected_class['Course Name'], selected_class['Schedule'])
-                    for day, time_period in schedule_details:
-                        if day in weekly_schedule:
-                            add_classes_to_schedule(weekly_schedule, selected_class['Location'], selected_class['Section'], selected_class['Course Name'], day, time_period)
-
-                    print(f"✅ {selected_class['Section']} has been added to the schedule.\n")
-
-                else:
-                    print("❌ Class was not added.\n")
-            else:
-                print("⚠️ Invalid choice. Please enter a valid number.")
-
-        except ValueError:
-            print("⚠️ Invalid input. Please enter a number or 'q' to quit.")
-
-    # Print updated weekly schedule
-    print("\n📅 Updated Weekly Schedule:\n")
-    for day, time_slots in weekly_schedule.items():
-        print(f'{day}:')
-        if time_slots:
-            for time_slot in time_slots:
-                print(f'  {time_slot}')
+    # Check if any JSON files were found
+    if not download_json_files:
+        print("No JSON files found in your downloads folder.")
+        input_choice = None
+    else:
+        print("\nAvailable JSON files in downloads folder:")
+        for i, file_path in enumerate(download_json_files, 1):
+            print(f"{i}. {os.path.basename(file_path)}")
+        
+        print("\nWhich file contains the course listings?")
+        selection = input("Enter number (or press Enter to skip): ")
+        
+        if selection.strip() and selection.isdigit() and 1 <= int(selection) <= len(download_json_files):
+            input_choice = download_json_files[int(selection) - 1]
         else:
-            print('  No classes')
-
+            input_choice = None
+            print("No valid selection. Proceeding without input file.")
+    
+    # Load available courses if an input file was selected
+    available_courses = []
+    if input_choice:
+        try:
+            with open(input_choice, 'r') as f:
+                available_courses = json.load(f)
+            print(f"Loaded {len(available_courses)} courses from {os.path.basename(input_choice)}")
+        except Exception as e:
+            print(f"Error loading file: {e}")
+            available_courses = []
+    
+    # Find JSON files in current directory for selected courses
+    current_json_files = find_json_files_in_current_directory()
+    
+    if not current_json_files:
+        print("\nNo selected courses file found in current directory.")
+        filename = input("Enter a name for your new selected courses file (e.g., my_courses.json): ")
+        if not filename.endswith('.json'):
+            filename += '.json'
+        selected_data = create_new_selected_file(filename)
+        print(f"Created new file: {filename}")
+    else:
+        print("\nExisting course files in current directory:")
+        for i, file_path in enumerate(current_json_files, 1):
+            print(f"{i}. {file_path}")
+        print(f"{len(current_json_files) + 1}. Create a new file")
+        
+        selection = input("Enter number for your selected courses file: ")
+        
+        if selection.isdigit():
+            selection = int(selection)
+            if 1 <= selection <= len(current_json_files):
+                selected_file = current_json_files[selection - 1]
+                try:
+                    with open(selected_file, 'r') as f:
+                        selected_data = json.load(f)
+                    print(f"Loaded selected courses from {selected_file}")
+                except Exception as e:
+                    print(f"Error loading file: {e}")
+                    selected_file = input("Enter a name for your new selected courses file: ")
+                    if not selected_file.endswith('.json'):
+                        selected_file += '.json'
+                    selected_data = create_new_selected_file(selected_file)
+            else:
+                selected_file = input("Enter a name for your new selected courses file: ")
+                if not selected_file.endswith('.json'):
+                    selected_file += '.json'
+                selected_data = create_new_selected_file(selected_file)
+        else:
+            selected_file = input("Enter a name for your new selected courses file: ")
+            if not selected_file.endswith('.json'):
+                selected_file += '.json'
+            selected_data = create_new_selected_file(selected_file)
+    
+    # Ensure selected_courses exists in the data
+    if "selected_courses" not in selected_data:
+        selected_data["selected_courses"] = []
+    
+    # Create timetable from selected courses
+    timetable = []
+    for course in selected_data["selected_courses"]:
+        timeslots = parse_timeslots(course[3])
+        for slot in timeslots:
+            timetable.append(slot)
+    
+    # Display current timetable
+    if timetable:
+        print("\nCurrent Timetable:")
+        for i, course in enumerate(selected_data["selected_courses"], 1):
+            print(f"{i}. {format_course_info(course)}")
+            for slot in course[3]:
+                print(f"   {slot}")
+    else:
+        print("\nYour timetable is currently empty.")
+    
+    # Find courses that fit into the current schedule
+    if available_courses:
+        print("\nAvailable courses that fit your schedule:")
+        fitting_courses = []
+        
+        for course in available_courses:
+            course_timeslots = parse_timeslots(course[3])
+            if not has_conflict(timetable, course_timeslots):
+                fitting_courses.append(course)
+                
+        if not fitting_courses:
+            print("No courses found that fit your current schedule.")
+        else:
+            for i, course in enumerate(fitting_courses, 1):
+                print(f"{i}. {format_course_info(course)}")
+                for slot in course[3]:
+                    print(f"   {slot}")
+            
+            # Let user select a course to add
+            selection = input("\nEnter number to add a course (or press Enter to skip): ")
+            if selection.strip() and selection.isdigit() and 1 <= int(selection) <= len(fitting_courses):
+                selected_course = fitting_courses[int(selection) - 1]
+                selected_data["selected_courses"].append(selected_course)
+                print(f"Added course: {selected_course[1]}")
+                
+                # Save updated selected courses
+                with open(selected_file, 'w') as f:
+                    json.dump(selected_data, f, indent=2)
+                print(f"Updated {selected_file} with new course selection.")
+    
+    # Ask if user wants to delete the input file
+    if input_choice:
+        delete_choice = input(f"\nDelete input file {os.path.basename(input_choice)}? [y/N]: ")
+        if delete_choice.lower() == 'y':
+            try:
+                os.remove(input_choice)
+                print(f"Deleted {os.path.basename(input_choice)}")
+            except Exception as e:
+                print(f"Error deleting file: {e}")
+        else:
+            print("Input file kept.")
 
 if __name__ == "__main__":
     main()

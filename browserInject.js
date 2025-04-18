@@ -1,4 +1,4 @@
-function getStudents(){
+function getClasses(){
 	let elementsMatrix = [];
 	
 	document.querySelectorAll('[id*="moduleTable-"]').forEach(el => {
@@ -18,8 +18,41 @@ function getStudents(){
 	return elementsMatrix;
 }
 
+function processDates(input) {
+    let regex = /\s*([A-Z]{3})\s*:\s*/g;
+    let matches = [...input.matchAll(regex)];
+    
+    let result = [];
+    
+    for (let i = 0; i < matches.length; i++) {
+        let startIndex = matches[i].index;
+        let endIndex = (i + 1 < matches.length) ? matches[i + 1].index : input.length;
+        let entry = input.substring(startIndex, endIndex).trim();
+        
+        // Remove trailing "-"
+        entry = entry.replace(/\s*-\s*$/, '');
+        
+        result.push(entry);
+    }
+
+    return result;
+}
+
+
+function replaceEmptySpans(textNo) {
+	// Select all span elements that have a specific set of attributes
+	const spans = document.querySelectorAll('span[id^="__text' + textNo + '-"]');
+
+	spans.forEach(span => {
+		// Check if the span's content is empty or contains only whitespace
+		if (span.textContent.trim() === '') {
+			span.textContent = 'NULL';
+		}
+	});
+}
+
 function processStudentMatrix(matrix) {
-	const relevantIndexes = [3, 2, 5, 6];
+	const relevantIndexes = [3, 2, 5, 6,7,8];
 	
 	let cleanedMatrix = matrix.map(student => relevantIndexes.map(index => student[index]));
 	
@@ -32,21 +65,13 @@ function processStudentMatrix(matrix) {
 }
 
 function cleanStudent(arr) {
-	
-	// Ders Kodu
-	arr[0] = arr[0].innerText;
-	
-	// Section
-	arr[1] = arr[1].innerText;
-	
-	// Hoca
-	arr[2] = arr[2].innerText;
+    for (let i = 0; i < arr.length; i++) {
+        arr[i] = arr[i].innerText;
+    }
 
-	// Time
-	arr[3] = arr[3].innerText;
-	
-	
+    arr[3] = processDates(arr[3]);
 }
+
 
 function downloadMatrixAsJson(matrix) {
 	const replacer = (key, value) => {
@@ -81,8 +106,13 @@ function downloadMatrixAsJson(matrix) {
 
 
 
+for (let i = 0; i < 200; i++) {
+	// replaceEmptySpans(startNo + i);
+	replaceEmptySpans(i);
+}
 
-temp = getStudents();
+
+temp = getClasses();
 
 console.log(temp.length);
 
