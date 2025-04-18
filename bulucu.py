@@ -3,6 +3,7 @@ import json
 import glob
 from datetime import datetime
 import shutil
+import io
 
 def get_download_folder():
     """Return the default downloads path for Windows."""
@@ -54,8 +55,8 @@ def create_new_selected_file(filename):
     data = {
         "selected_courses": []
     }
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=2)
+    with io.open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
     return data
 
 def format_course_info(course):
@@ -91,7 +92,7 @@ def main():
     available_courses = []
     if input_choice:
         try:
-            with open(input_choice, 'r') as f:
+            with io.open(input_choice, 'r', encoding='utf-8') as f:
                 available_courses = json.load(f)
             print(f"Loaded {len(available_courses)} courses from {os.path.basename(input_choice)}")
         except Exception as e:
@@ -107,6 +108,7 @@ def main():
         if not filename.endswith('.json'):
             filename += '.json'
         selected_data = create_new_selected_file(filename)
+        selected_file = filename
         print(f"Created new file: {filename}")
     else:
         print("\nExisting course files in current directory:")
@@ -121,7 +123,7 @@ def main():
             if 1 <= selection <= len(current_json_files):
                 selected_file = current_json_files[selection - 1]
                 try:
-                    with open(selected_file, 'r') as f:
+                    with io.open(selected_file, 'r', encoding='utf-8') as f:
                         selected_data = json.load(f)
                     print(f"Loaded selected courses from {selected_file}")
                 except Exception as e:
@@ -145,35 +147,47 @@ def main():
     if "selected_courses" not in selected_data:
         selected_data["selected_courses"] = []
     
-    # Create timetable from selected courses
-    timetable = []
-    for course in selected_data["selected_courses"]:
-        timeslots = parse_timeslots(course[3])
-        for slot in timeslots:
-            timetable.append(slot)
-    
-    # Display current timetable
-    if timetable:
-        print("\nCurrent Timetable:")
-        for i, course in enumerate(selected_data["selected_courses"], 1):
-            print(f"{i}. {format_course_info(course)}")
-            for slot in course[3]:
-                print(f"   {slot}")
-    else:
-        print("\nYour timetable is currently empty.")
-    
-    # Find courses that fit into the current schedule
-    if available_courses:
+    continue_adding = True
+    while continue_adding and available_courses:
+        # Create timetable from selected courses
+        timetable = []
+        for course in selected_data["selected_courses"]:
+            timeslots = parse_timeslots(course[3])
+            for slot in timeslots:
+                timetable.append(slot)
+        
+        # Display current timetable
+        if timetable:
+            print("\nCurrent Timetable:")
+            for i, course in enumerate(selected_data["selected_courses"], 1):
+                print(f"{i}. {format_course_info(course)}")
+                for slot in course[3]:
+                    print(f"   {slot}")
+        else:
+            print("\nYour timetable is currently empty.")
+        
+        # Find courses that fit into the current schedule
         print("\nAvailable courses that fit your schedule:")
         fitting_courses = []
         
         for course in available_courses:
+            # Skip courses already in the selected_courses
+            already_selected = False
+            for selected in selected_data["selected_courses"]:
+                if selected[0] == course[0]:  # Compare course codes
+                    already_selected = True
+                    break
+                    
+            if already_selected:
+                continue
+                
             course_timeslots = parse_timeslots(course[3])
             if not has_conflict(timetable, course_timeslots):
                 fitting_courses.append(course)
                 
         if not fitting_courses:
-            print("No courses found that fit your current schedule.")
+            print("No additional courses found that fit your current schedule.")
+            continue_adding = False
         else:
             for i, course in enumerate(fitting_courses, 1):
                 print(f"{i}. {format_course_info(course)}")
@@ -188,9 +202,16 @@ def main():
                 print(f"Added course: {selected_course[1]}")
                 
                 # Save updated selected courses
-                with open(selected_file, 'w') as f:
-                    json.dump(selected_data, f, indent=2)
+                with io.open(selected_file, 'w', encoding='utf-8') as f:
+                    json.dump(selected_data, f, indent=2, ensure_ascii=False)
                 print(f"Updated {selected_file} with new course selection.")
+                
+                # Ask if user wants to add another course
+                add_another = input("\nDo you want to add another course? [Y/n]: ")
+                if add_another.lower() == 'n':
+                    continue_adding = False
+            else:
+                continue_adding = False
     
     # Ask if user wants to delete the input file
     if input_choice:
@@ -203,6 +224,8 @@ def main():
                 print(f"Error deleting file: {e}")
         else:
             print("Input file kept.")
+
+    print("\nThank you for using the Lesson Selection Program!")
 
 if __name__ == "__main__":
     main()
