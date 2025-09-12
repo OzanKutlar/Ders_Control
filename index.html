@@ -53,8 +53,7 @@
             margin-bottom: 20px;
         }
 
-        .load-btn {
-            background-color: #4CAF50;
+        .load-btn, .add-btn {
             color: white;
             border: none;
             padding: 10px 20px;
@@ -62,9 +61,21 @@
             cursor: pointer;
             font-size: 14px;
         }
+        
+        .load-btn {
+            background-color: #4CAF50;
+        }
 
         .load-btn:hover {
             background-color: #45a049;
+        }
+
+        .add-btn {
+            background-color: #2196F3;
+        }
+
+        .add-btn:hover {
+            background-color: #1e88e5;
         }
 
         .schedule-grid {
@@ -244,10 +255,49 @@
             background-color: #3c3c3c;
             padding: 20px;
             border-radius: 12px;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+        }
+
+        #customClassForm h4 {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .time-slot-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .time-slot-input select {
+            background-color: #2b2b2b;
+            color: white;
+            border: 1px solid #555;
+            padding: 6px;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .remove-slot-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
         }
 
         .file-list {
@@ -314,6 +364,7 @@
         <div class="schedule-section">
             <div class="controls">
                 <button class="load-btn" onclick="showFileDialog()">Load Schedule JSON</button>
+                <button class="add-btn" onclick="showCustomClassModal()">Add Custom Class</button>
             </div>
             
             <div class="schedule-grid" id="scheduleGrid">
@@ -345,6 +396,27 @@
         </div>
     </div>
 
+    <div class="modal hidden" id="customClassModal">
+        <div class="modal-content">
+            <h3>Add Custom Class</h3>
+            <form id="customClassForm" onsubmit="addCustomClass(event)">
+                <input type="text" id="customClassName" class="search-input" placeholder="Class Name" required>
+                <input type="text" id="customClassTeacher" class="search-input" placeholder="Teacher / Instructor">
+                <input type="text" id="customClassClassroom" class="search-input" placeholder="Classroom / Location">
+
+                <h4>Time Slots</h4>
+                <div id="timeSlotsContainer">
+                    </div>
+                <button type="button" class="action-btn" onclick="addTimeSlotInput()" style="background-color:#333; margin-top: 5px;">+ Add Time Slot</button>
+
+                <div class="modal-actions">
+                    <button type="button" class="action-btn cancel-btn" onclick="hideCustomClassModal()">Cancel</button>
+                    <button type="submit" class="action-btn confirm-btn">Save Class</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="class-popup hidden" id="classPopup">
         <div class="color-picker" id="colorPicker">
             </div>
@@ -372,6 +444,7 @@
         let changedClassToHandle = null;
 
         const days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const dayShort = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
         const timeSlots = [];
         for (let hour = 9; hour < 20; hour++) {
             timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
@@ -448,7 +521,11 @@
         function saveClass(classData) {
             const transaction = db.transaction(['schedule'], 'readwrite');
             const objectStore = transaction.objectStore('schedule');
-            objectStore.add(classData);
+            const request = objectStore.add(classData);
+            request.onsuccess = function(event) {
+                // After saving, reload to get the auto-incremented ID
+                loadUserSchedule();
+            };
         }
 
         // Remove class from IndexedDB
@@ -482,11 +559,11 @@
             const [day, timeRange] = timeSlot.split(' : ');
             const [startTime, endTime] = timeRange.split(' - ');
             
-            const dayNum = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].indexOf(day) + 1;
+            const dayNum = dayShort.indexOf(day) + 1;
             const startSlotIndex = timeSlots.indexOf(startTime);
             const endSlotIndex = timeSlots.indexOf(endTime);
 
-            if (startSlotIndex === -1 || endSlotIndex === -1) return;
+            if (startSlotIndex === -1 || endSlotIndex === -1 || dayNum === 0) return;
 
             const cell = document.querySelector(`[data-day="${dayNum}"][data-time="${startTime}"]`);
             if (!cell) return;
@@ -509,6 +586,105 @@
             
             cell.appendChild(block);
         }
+
+        // --- CUSTOM CLASS FUNCTIONS START ---
+
+        function showCustomClassModal() {
+            document.getElementById('customClassForm').reset();
+            document.getElementById('timeSlotsContainer').innerHTML = '';
+            addTimeSlotInput(); // Add one row by default
+            document.getElementById('customClassModal').classList.remove('hidden');
+        }
+
+        function hideCustomClassModal() {
+            document.getElementById('customClassModal').classList.add('hidden');
+        }
+
+        function addTimeSlotInput() {
+            const container = document.getElementById('timeSlotsContainer');
+            const div = document.createElement('div');
+            div.className = 'time-slot-input';
+
+            // Day dropdown
+            const daySelect = document.createElement('select');
+            daySelect.className = 'day-select';
+            dayShort.forEach((day, index) => {
+                daySelect.options.add(new Option(days[index + 1], day));
+            });
+
+            // Start time dropdown
+            const startSelect = document.createElement('select');
+            startSelect.className = 'time-select';
+            timeSlots.forEach(slot => {
+                startSelect.options.add(new Option(slot, slot));
+            });
+
+            // End time dropdown
+            const endSelect = document.createElement('select');
+            endSelect.className = 'time-select';
+            timeSlots.forEach(slot => {
+                endSelect.options.add(new Option(slot, slot));
+            });
+            // Smartly select end time based on start time
+            startSelect.onchange = () => {
+                const startIndex = startSelect.selectedIndex;
+                if (startIndex + 1 < timeSlots.length) {
+                    endSelect.selectedIndex = startIndex + 1;
+                }
+            };
+
+            // Remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-slot-btn';
+            removeBtn.textContent = '-';
+            removeBtn.onclick = () => container.removeChild(div);
+
+            div.appendChild(daySelect);
+            div.appendChild(startSelect);
+            div.innerHTML += '<span> to </span>';
+            div.appendChild(endSelect);
+            div.appendChild(removeBtn);
+            container.appendChild(div);
+        }
+
+        function addCustomClass(event) {
+            event.preventDefault();
+            
+            const timeSlotInputs = document.querySelectorAll('#timeSlotsContainer .time-slot-input');
+            const newTimeSlots = [];
+
+            for (const input of timeSlotInputs) {
+                const day = input.querySelector('.day-select').value;
+                const start = input.querySelectorAll('.time-select')[0].value;
+                const end = input.querySelectorAll('.time-select')[1].value;
+
+                if (timeSlots.indexOf(start) >= timeSlots.indexOf(end)) {
+                    alert(`Error: In a time slot, the start time (${start}) must be before the end time (${end}).`);
+                    return;
+                }
+                newTimeSlots.push(`${day} : ${start} - ${end}`);
+            }
+
+            if (newTimeSlots.length === 0) {
+                alert('Please add at least one time slot.');
+                return;
+            }
+
+            const classData = {
+                classCode: `custom-${Date.now()}`, // Unique code for custom classes
+                name: document.getElementById('customClassName').value,
+                teacher: document.getElementById('customClassTeacher').value || 'N/A',
+                classroom: document.getElementById('customClassClassroom').value || 'N/A',
+                timeSlots: newTimeSlots,
+                color: colors[userSchedule.length % colors.length]
+            };
+            
+            saveClass(classData);
+            hideCustomClassModal();
+        }
+
+        // --- CUSTOM CLASS FUNCTIONS END ---
 
         // Show file selection dialog
         function showFileDialog() {
@@ -651,7 +827,7 @@
                 const [day, timeRange] = slot.split(' : ');
                 const [startTime, endTime] = timeRange.split(' - ');
                 
-                const dayNum = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].indexOf(day) + 1;
+                const dayNum = dayShort.indexOf(day) + 1;
                 const startSlotIndex = timeSlots.indexOf(startTime);
                 const endSlotIndex = timeSlots.indexOf(endTime);
 
@@ -685,10 +861,6 @@
             };
             
             saveClass(classData);
-            classData.id = Date.now(); // Temporary ID for immediate rendering
-            userSchedule.push(classData);
-            
-            renderSchedule();
             cancelAddClass();
         }
 
