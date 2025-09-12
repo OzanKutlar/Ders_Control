@@ -234,6 +234,16 @@
             cursor: pointer;
             font-size: 14px;
         }
+        
+        .filter-btn {
+            width: 100%;
+            margin-top: 8px;
+            background-color: #795548;
+        }
+
+        .filter-btn:hover {
+            background-color: #6d4c41;
+        }
 
         .confirm-btn {
             background-color: #4CAF50;
@@ -382,6 +392,7 @@
             <div class="search-controls">
                 <input type="text" class="search-input" id="nameSearch" placeholder="Search by class name..." oninput="filterClasses()">
                 <input type="text" class="search-input" id="teacherSearch" placeholder="Search by teacher..." oninput="filterClasses()">
+                <button id="filterConflictBtn" class="action-btn filter-btn" onclick="toggleConflictFilter()">Filter Conflicting Classes</button>
             </div>
             
             <div class="class-list" id="classList">
@@ -449,6 +460,7 @@
         let selectedClass = null;
         let previewClass = null;
         let changedClassToHandle = null;
+        let isConflictFilterActive = false; // New global state for conflict filter
 
         const days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         const dayShort = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
@@ -559,6 +571,8 @@
                     renderClassBlock(classData, slot);
                 });
             });
+             // Re-apply filters in case the schedule change affects conflicts
+            filterClasses();
         }
 
         // Render individual class block
@@ -774,6 +788,8 @@
             availableClasses.forEach(classData => {
                 const classItem = document.createElement('div');
                 classItem.className = `class-item ${classData.hasChanged ? 'changed' : ''}`;
+                // Add data attribute to link DOM element back to its data object
+                classItem.dataset.classCode = classData.code;
                 classItem.innerHTML = `
                     <div class="class-name">${classData.name}</div>
                     <div class="class-teacher">${classData.teacher}</div>
@@ -792,7 +808,49 @@
             });
         }
 
-        // Filter classes based on search
+        // NEW FUNCTION: Toggles the conflict filter state and appearance
+        function toggleConflictFilter() {
+            isConflictFilterActive = !isConflictFilterActive;
+            const btn = document.getElementById('filterConflictBtn');
+            
+            if (isConflictFilterActive) {
+                btn.textContent = 'Show All Classes';
+                btn.style.backgroundColor = '#9C27B0'; // Active color
+                btn.style.setProperty('background-color', '#9C27B0', 'important');
+            } else {
+                btn.textContent = 'Filter Conflicting Classes';
+                btn.style.backgroundColor = '#795548'; // Default color
+            }
+            
+            filterClasses(); // Re-apply all filters
+        }
+
+        // NEW FUNCTION: Checks if a single class conflicts with any class in the user's schedule
+        function checkForConflict(classToCheck) {
+            for (const scheduledClass of userSchedule) {
+                for (const slotToCheck of classToCheck.timeSlots) {
+                    const [day1, timeRange1] = slotToCheck.split(' : ');
+                    const [start1, end1] = timeRange1.split(' - ');
+
+                    for (const scheduledSlot of scheduledClass.timeSlots) {
+                        const [day2, timeRange2] = scheduledSlot.split(' : ');
+                        const [start2, end2] = timeRange2.split(' - ');
+
+                        // Only check for conflicts on the same day
+                        if (day1 === day2) {
+                            // Standard overlap check: (StartA < EndB) and (EndA > StartB)
+                            // String comparison works here because the time format is HH:MM (24-hour)
+                            if (start1 < end2 && end1 > start2) {
+                                return true; // A conflict was detected
+                            }
+                        }
+                    }
+                }
+            }
+            return false; // No conflicts found
+        }
+
+        // MODIFIED FUNCTION: Filter classes based on search and conflict status
         function filterClasses() {
             const nameSearch = document.getElementById('nameSearch').value.toLowerCase();
             const teacherSearch = document.getElementById('teacherSearch').value.toLowerCase();
@@ -802,10 +860,27 @@
                 const name = item.querySelector('.class-name').textContent.toLowerCase();
                 const teacher = item.querySelector('.class-teacher').textContent.toLowerCase();
                 
+                let isVisible = true;
+
+                // Step 1: Apply text search filters
                 const matchesName = name.includes(nameSearch);
                 const matchesTeacher = teacher.includes(teacherSearch);
                 
-                item.style.display = (matchesName && matchesTeacher) ? 'block' : 'none';
+                if (!matchesName || !matchesTeacher) {
+                    isVisible = false;
+                }
+
+                // Step 2: If the item is still visible and the conflict filter is active, check for conflicts
+                if (isVisible && isConflictFilterActive) {
+                    const classCode = item.dataset.classCode;
+                    const classData = availableClasses.find(c => c.code === classCode);
+                    
+                    if (classData && checkForConflict(classData)) {
+                        isVisible = false; // Hide if a conflict is found
+                    }
+                }
+                
+                item.style.display = isVisible ? 'block' : 'none';
             });
         }
 
