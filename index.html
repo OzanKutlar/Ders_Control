@@ -114,19 +114,21 @@
             color: white;
             cursor: pointer;
             overflow: hidden;
-            z-index: 10; /* Lifts block over grid lines */
+            z-index: 10;
             display: flex;
             flex-direction: column;
+            justify-content: center; /* Vertically center content */
+            text-align: center;      /* Horizontally center text */
         }
 
         .block-class-name {
             font-weight: bold;
-            font-size: 11px;
-            margin-bottom: 2px;
+            font-size: 13px;    /* Increased font size */
+            margin-bottom: 3px;
         }
 
         .block-class-details {
-            font-size: 9px;
+            font-size: 11px;    /* Increased font size */
             opacity: 0.9;
             white-space: nowrap;
             overflow: hidden;
@@ -492,7 +494,6 @@
             const block = document.createElement('div');
             block.className = 'class-block';
             
-            // --- MODIFICATION START ---
             // Display name, teacher, and classroom
             const classroomInfo = classData.classroom ? `<div class="block-class-details">${classData.classroom}</div>` : '';
             block.innerHTML = `
@@ -500,7 +501,6 @@
                 <div class="block-class-details">${classData.teacher}</div>
                 ${classroomInfo}
             `;
-            // --- MODIFICATION END ---
             
             block.style.backgroundColor = classData.color || colors[0];
             block.style.height = `${(endSlotIndex - startSlotIndex) * 31}px`;
