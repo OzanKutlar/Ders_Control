@@ -139,12 +139,19 @@
         }
 
         .block-class-details {
-            font-size: 11px;    /* Increased font size */
+            font-size: 15px;    /* Increased font size */
             opacity: 0.9;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
+		
+		.block-class-code {
+			font-size: 10px;
+			opacity: 0.7;
+			margin-top: 4px;
+			font-family: monospace;
+		}
 
         .classes-section {
             flex: 1;
@@ -571,13 +578,15 @@
             const block = document.createElement('div');
             block.className = 'class-block';
             
-            // Display name, teacher, and classroom
-            const classroomInfo = classData.classroom ? `<div class="block-class-details">${classData.classroom}</div>` : '';
-            block.innerHTML = `
-                <div class="block-class-name">${classData.name}</div>
-                <div class="block-class-details">${classData.teacher}</div>
-                ${classroomInfo}
-            `;
+            // Display name, teacher, classroom, and code
+			const classroomInfo = classData.classroom ? `<div class="block-class-details">${classData.classroom}</div>` : '';
+			const classCodeInfo = classData.classCode ? `<div class="block-class-code">${classData.classCode}</div>` : '';
+			block.innerHTML = `
+				<div class="block-class-name">${classData.name}</div>
+				<div class="block-class-details">${classData.teacher}</div>
+				${classroomInfo}
+				${classCodeInfo}
+			`;
             
             block.style.backgroundColor = classData.color || colors[0];
             block.style.height = `${(endSlotIndex - startSlotIndex) * 31}px`;
