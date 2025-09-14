@@ -419,7 +419,7 @@
             </div>
             
             <div id="selectionInfo" class="selection-info hidden">
-                Click and drag to select time slots, or click individual slots to toggle selection.
+                Click individual slots to toggle selection.
             </div>
             
             <div class="schedule-grid" id="scheduleGrid">
@@ -511,10 +511,8 @@
         let selectedClass = null;
         let previewClass = null;
         let changedClassToHandle = null;
-        let isConflictFilterActive = false; // New global state for conflict filter
+        let isConflictFilterActive = false;
         let selectedTimeSlots = new Set(); // Store selected time slots
-        let isSelecting = false; // Track if user is currently selecting
-        let selectionStartCell = null; // Track selection start
 
         const days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         const dayShort = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
@@ -574,90 +572,16 @@
                     cell.dataset.day = day;
                     cell.dataset.time = time;
                     
-                    // Add event listeners for time slot selection
-                    cell.addEventListener('mousedown', handleCellMouseDown);
-                    cell.addEventListener('mouseenter', handleCellMouseEnter);
-                    cell.addEventListener('mouseup', handleCellMouseUp);
+                    // Add event listener for time slot selection
                     cell.addEventListener('click', handleCellClick);
                     
                     grid.appendChild(cell);
                 }
             });
-
-            // Add global mouse up listener to handle selection end
-            document.addEventListener('mouseup', () => {
-                isSelecting = false;
-                selectionStartCell = null;
-            });
-        }
-
-        // Handle mouse down on cells (start selection)
-        function handleCellMouseDown(event) {
-            event.preventDefault();
-            const cell = event.target;
-            
-            // Only allow selection on empty cells
-            if (!isCellEmpty(cell)) return;
-            
-            isSelecting = true;
-            selectionStartCell = cell;
-            
-            // Clear existing selection
-            selectedTimeSlots.clear();
-            updateCellSelections();
-            
-            // Add this cell to selection
-            const slotKey = getCellSlotKey(cell);
-            selectedTimeSlots.add(slotKey);
-            updateCellSelections();
-            updateSelectionInfo();
-        }
-
-        // Handle mouse enter during selection
-        function handleCellMouseEnter(event) {
-            if (!isSelecting || !selectionStartCell) return;
-            
-            const cell = event.target;
-            if (!isCellEmpty(cell)) return;
-            
-            // Clear current selection
-            selectedTimeSlots.clear();
-            
-            // Add all cells in rectangle between start and current
-            const startDay = parseInt(selectionStartCell.dataset.day);
-            const startTimeIndex = timeSlots.indexOf(selectionStartCell.dataset.time);
-            const currentDay = parseInt(cell.dataset.day);
-            const currentTimeIndex = timeSlots.indexOf(cell.dataset.time);
-            
-            const minDay = Math.min(startDay, currentDay);
-            const maxDay = Math.max(startDay, currentDay);
-            const minTime = Math.min(startTimeIndex, currentTimeIndex);
-            const maxTime = Math.max(startTimeIndex, currentTimeIndex);
-            
-            for (let day = minDay; day <= maxDay; day++) {
-                for (let timeIndex = minTime; timeIndex <= maxTime; timeIndex++) {
-                    const targetCell = document.querySelector(`[data-day="${day}"][data-time="${timeSlots[timeIndex]}"]`);
-                    if (targetCell && isCellEmpty(targetCell)) {
-                        selectedTimeSlots.add(getCellSlotKey(targetCell));
-                    }
-                }
-            }
-            
-            updateCellSelections();
-            updateSelectionInfo();
-        }
-
-        // Handle mouse up on cells
-        function handleCellMouseUp(event) {
-            isSelecting = false;
-            selectionStartCell = null;
         }
 
         // Handle single clicks on cells (toggle selection)
         function handleCellClick(event) {
-            // Only handle click if we weren't dragging
-            if (isSelecting) return;
-            
             const cell = event.target;
             if (!isCellEmpty(cell)) return;
             
