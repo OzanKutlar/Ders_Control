@@ -338,5 +338,10 @@ if __name__ == "__main__":
     # Uncomment the line below to test time processing logic
     # test_time_processing()
     
+    index_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
+
+    if os.path.exists(index_file):
+        os.startfile(index_file)
+    
     print("\n🚀 Starting schedule maker backend server...")
     start_server()
