@@ -94,8 +94,14 @@ function downloadMatrixAsJson(matrix) {
 	
 	const url = URL.createObjectURL(blob);
 	
+	// Ask user for filename
+	let filename = prompt("Enter the file name (without extension):", "matrix");
+	if (!filename) {
+		filename = "matrix"; // fallback default
+	}
+	
 	link.href = url;
-	link.download = 'matrix.json';
+	link.download = filename + ".json";
 	
 	document.body.appendChild(link);
 	link.click();
